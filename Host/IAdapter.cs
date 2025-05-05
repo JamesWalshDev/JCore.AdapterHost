@@ -2,7 +2,7 @@
 // File: IAdapter.cs
 // Description: Interface for Adapter implementations.
 // Author: James Walsh
-// Version: 1.0.0
+// Version: 1.0.1
 // ------------------------------------------------------------
 
 using System;

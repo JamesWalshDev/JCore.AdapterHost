@@ -2,10 +2,12 @@
 // File: Adapter.cs
 // Description: Implementation of the IAdapter interface.
 // Author: James Walsh
-// Version: 1.0.0
+// Version: 1.0.1
 // ------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
+
 using UnityEngine;
 
 namespace JCore.AdapterHost
@@ -16,6 +18,34 @@ namespace JCore.AdapterHost
     /// </summary>
     public class Adapter : MonoBehaviour, IAdapter
     {
+        /// <summary>
+        /// Internal Class used to contain Logging Calls for Parent Class.
+        /// Enables logging only in DevMode.
+        /// </summary>
+        private static class InternalLogging
+        {
+            /// <summary>
+            /// Logs the Adapter State Info.
+            /// </summary>
+            [Conditional("DEV_MODE")]
+            public static void LogAdapterInfo(string id_, bool isActive_)
+                => AdapterHost.Adapter.Log($"AdapterId: {id_} | IsActive: {isActive_}");
+
+            /// <summary>
+            /// Logs Successful PowerOn.
+            /// </summary>
+            [Conditional("DEV_MODE")]
+            public static void LogPowerOnSuccess(string id_)
+                => AdapterHost.Adapter.Log($"[AdapterHost] Successfully booted the {id_}.");
+
+            /// <summary>
+            /// Logs Successful PowerOff.
+            /// </summary>
+            [Conditional("DEV_MODE")]
+            public static void LogPowerOffSuccess(string id_)
+                => AdapterHost.Adapter.Log($"[AdapterHost] Successfully shutdown the {id_}.");
+        }
+
         /// <summary>
         /// Returns the current Adapter instance.
         /// </summary>
@@ -34,10 +64,10 @@ namespace JCore.AdapterHost
             => Instance != null;
 
         /// <summary>
-        /// Logs Adapter State info.
+        /// Logs the Adapter State info.
         /// </summary>
         public void LogAdapterInfo()
-            => Log($"AdapterId: {AdapterId} | IsActive: {IsActive}");
+            => InternalLogging.LogAdapterInfo(AdapterId, IsActive);
 
         /// <summary>
         /// Starts the adapter.
@@ -46,15 +76,11 @@ namespace JCore.AdapterHost
         {
             try
             {
-                // Set
                 Instance = this;
-
-                // Log Success
-                Log($"[AdapterHost] Successfully booted the {AdapterId}.");
+                InternalLogging.LogPowerOnSuccess(AdapterId);
             }
             catch (Exception ex)
             {
-                // Throw
                 ThrowException(ex, $"[AdapterHost] Failed to boot the {AdapterId}.");
             }
         }
@@ -66,15 +92,11 @@ namespace JCore.AdapterHost
         {
             try
             {
-                // Remove
                 Instance = null;
-
-                // Log Success
-                Log($"[AdapterHost] Successfully shutdown the {AdapterId}.");
+                InternalLogging.LogPowerOffSuccess(AdapterId);
             }
             catch (Exception ex)
             {
-                // Throw
                 ThrowException(ex, $"[AdapterHost] Failed to shutdown the {AdapterId}.");
             }
         }
@@ -84,7 +106,7 @@ namespace JCore.AdapterHost
         /// </summary>
         public void Log(string message_)
         {
-            if (AdapterHost.IsDevMode) Debug.Log($"{message_}");
+            if (AdapterHost.IsDevMode) UnityEngine.Debug.Log($"{message_}");
         }
 
         /// <summary>
@@ -92,7 +114,7 @@ namespace JCore.AdapterHost
         /// </summary>
         public void LogWarning(string message_)
         {
-            if (AdapterHost.IsDevMode) Debug.LogWarning($"{message_}");
+            if (AdapterHost.IsDevMode) UnityEngine.Debug.LogWarning($"{message_}");
         }
 
         /// <summary>
@@ -100,7 +122,7 @@ namespace JCore.AdapterHost
         /// </summary>
         public void LogError(string message_)
         {
-            if (AdapterHost.IsDevMode) Debug.LogError($"{message_}");
+            if (AdapterHost.IsDevMode) UnityEngine.Debug.LogError($"{message_}");
         }
 
         /// <summary>
